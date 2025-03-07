@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chúc mừng Quốc tế Phụ nữ 8/3</title>
+  <!-- Favicon hiển thị trên tab trình duyệt -->
+  <link rel="icon" type="image/png" href="image/favicon.ico">
+  <!-- Link đến file CSS định dạng giao diện -->
+  <link rel="stylesheet" type="text/css" href="renxi/default.css">
+  <!-- Thư viện jQuery -->
+  <script src="renxi/jquery.min.js"></script>
+  <!-- Các file thư viện của JScex dùng cho hiệu ứng hoạt hình -->
+  <script src="renxi/jscex.min.js"></script>
+  <script src="renxi/jscex-parser.js"></script>
+  <script src="renxi/jscex-jit.js"></script>
+  <script src="renxi/jscex-builderbase.min.js"></script>
+  <script src="renxi/jscex-async.min.js"></script>
+  <script src="renxi/jscex-async-powerpack.min.js"></script>
+  <!-- Các file script tùy chỉnh (functions.js, love.js) -->
+  <script src="renxi/functions.js" charset="utf-8"></script>
+  <script src="renxi/love.js" charset="utf-8"></script>
+</head>
+<body style="background: #ffe;">
+
+  <!-- Nhạc nền tự động phát và lặp lại; nếu muốn thay nhạc, đổi tên file hoặc đường dẫn tại đây -->
+  <audio autoplay loop>
+    <source src="music/nhac.mp3" type="audio/mp3">
+    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+  </audio>
+
+  <!-- Thông báo lỗi nếu trình duyệt không hỗ trợ Canvas -->
+  <div id="error" style="display: none;">
+    Trình duyệt của bạn không được hỗ trợ. Vui lòng liên hệ daikupj@gmail.com hoặc sử dụng
+    <a href="https://www.google.cn/chrome">Chrome</a> / <a href="http://firefox.com/download/">Firefox</a>.
+  </div>
+
+  <!-- Phần chính của trang web -->
+  <div id="main">
+    <div id="wrap">
+      <!-- Phần hiển thị lời chúc -->
+      <div id="text" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">
+        <div id="code" style="color: #0000FF;">
+          <span class="say">Chào các bạn!</span><br>
+          <span class="say">Ngày 8/3 chúc một nửa thế giới luôn thành công trong cuộc sống!</span><br>
+          <span class="say">Chúc bạn luôn duyên dáng và xinh đẹp trong mắt một nửa thế giới còn lại.</span><br>
+          <span class="say">Kính chúc "một nửa" của nhân loại vui vẻ, hạnh phúc bên người thân yêu</span><br>
+          <!-- Hiển thị hình ảnh; để thay đổi hình, đổi tên file hoặc đường dẫn ở thuộc tính src -->
+          <img src="image/tym.png" alt="Trái tim" style="margin-top: 10px;"><br>
+          <span class="say">--Lớp trưởng--</span>
+        </div>
+      </div>
+
+      <!-- Phần hiển thị đồng hồ hoặc thông tin thời gian -->
+      <div id="clock-box">
+        <span class="STYLE1"></span>
+        <span style="color: #FF0000;">Ngày 8/3 cuối cùng ta ngồi với nhau đến nay đã....</span>
+        <div id="clock"></div>
+      </div>
+
+      <!-- Thẻ Canvas dùng để vẽ hiệu ứng hoạt hình (cây hoa, chuyển động, ...) -->
+      <canvas id="canvas" width="1100" height="680"></canvas>
+    </div>
+  </div>
+
+  <!-- Phần script chứa các hiệu ứng, hoạt hình bằng JavaScript -->
+  <script>
+    (function(){
+      // Lấy đối tượng canvas từ trang HTML bằng jQuery
+      var canvas = $('#canvas');
+      
+      // Kiểm tra trình duyệt có hỗ trợ canvas không
+      if (!canvas[0].getContext) {
+        $("#error").show();
+        return false;
+      }
+      
+      // Lấy kích thước của canvas
+      var width = canvas.width();
+      var height = canvas.height();
+      canvas.attr("width", width);
+      canvas.attr("height", height);
+      
+      // Cấu hình các thông số cho hiệu ứng "cây hoa"
+      var opts = {
+        seed: {
+          x: width / 2 - 20,
+          color: "rgb(190, 26, 37)",
+          scale: 2
+        },
+        branch: [
+          [535, 680, 570, 250, 500, 200, 30, 100, [
+            [540, 500, 455, 417, 340, 400, 13, 100, [
+              [450, 435, 434, 430, 394, 395, 2, 40]
+            ]],
+            [550, 445, 600, 356, 680, 345, 12, 100, [
+              [578, 400, 648, 409, 661, 426, 3, 80]
+            ]],
+            [539, 281, 537, 248, 534, 217, 3, 40],
+            [546, 397, 413, 247, 328, 244, 9, 80, [
+              [427, 286, 383, 253, 371, 205, 2, 40],
+              [498, 345, 435, 315, 395, 330, 4, 60]
+            ]],
+            [546, 357, 608, 252, 678, 221, 6, 100, [
+              [590, 293, 646, 277, 648, 271, 2, 80]
+            ]]
+          ]]
+        ],
+        bloom: {
+          num: 700,
+          width: 1080,
+          height: 650
+        },
+        footer: {
+          width: 1200,
+          height: 5,
+          speed: 10
+        }
+      };
+
+      // Tạo đối tượng tree với hiệu ứng cây hoa (được định nghĩa trong file love.js hoặc functions.js)
+      var tree = new Tree(canvas[0], width, height, opts);
+      var seed = tree.seed;
+      var foot = tree.footer;
+      var hold = 1;
+
+      // Sự kiện click và di chuyển chuột trên canvas
+      canvas.click(function(e) {
+        var offset = canvas.offset(), x, y;
+        x = e.pageX - offset.left;
+        y = e.pageY - offset.top;
+        if (seed.hover(x, y)) {
+          hold = 0;
+          canvas.unbind("click");
+          canvas.unbind("mousemove");
+          canvas.removeClass('hand');
+        }
+      }).mousemove(function(e){
+        var offset = canvas.offset(), x, y;
+        x = e.pageX - offset.left;
+        y = e.pageY - offset.top;
+        canvas.toggleClass('hand', seed.hover(x, y));
+      });
+
+      // Các hàm animation sử dụng JScex
+      var seedAnimate = eval(Jscex.compile("async", function () {
+        seed.draw();
+        while (hold) {
+          $await(Jscex.Async.sleep(10));
+        }
+        while (seed.canScale()) {
+          seed.scale(0.95);
+          $await(Jscex.Async.sleep(10));
+        }
+        while (seed.canMove()) {
+          seed.move(0, 2);
+          foot.draw();
+          $await(Jscex.Async.sleep(10));
+        }
+      }));
+
+      var growAnimate = eval(Jscex.compile("async", function () {
+        do {
+          tree.grow();
+          $await(Jscex.Async.sleep(10));
+        } while (tree.canGrow());
+      }));
+
+      var flowAnimate = eval(Jscex.compile("async", function () {
+        do {
+          tree.flower(2);
+          $await(Jscex.Async.sleep(10));
+        } while (tree.canFlower());
+      }));
+
+      var moveAnimate = eval(Jscex.compile("async", function () {
+        tree.snapshot("p1", 240, 0, 610, 680);
+        while (tree.move("p1", 500, 0)) {
+          foot.draw();
+          $await(Jscex.Async.sleep(10));
+        }
+        foot.draw();
+        tree.snapshot("p2", 500, 0, 610, 680);
+        canvas.parent().css("background", "url(" + tree.toDataURL('image/png') + ")");
+        canvas.css("background", "#ffe");
+        $await(Jscex.Async.sleep(300));
+        canvas.css("background", "none");
+      }));
+
+      var jumpAnimate = eval(Jscex.compile("async", function () {
+        while (true) {
+          tree.ctx.clearRect(0, 0, width, height);
+          tree.jump();
+          foot.draw();
+          $await(Jscex.Async.sleep(25));
+        }
+      }));
+
+      var textAnimate = eval(Jscex.compile("async", function () {
+        // Khởi tạo thời gian bắt đầu (có thể thay đổi ngày tháng theo ý bạn)
+        var together = new Date();
+        together.setFullYear(2018, 2, 8);
+        together.setHours(0);
+        together.setMinutes(0);
+        together.setSeconds(0);
+        together.setMilliseconds(0);
+
+        $("#code").show().typewriter();
+        $("#clock-box").fadeIn(500);
+        while (true) {
+          timeElapse(together);
+          $await(Jscex.Async.sleep(1000));
+        }
+      }));
+
+      var runAsync = eval(Jscex.compile("async", function () {
+        $await(seedAnimate());
+        $await(growAnimate());
+        $await(flowAnimate());
+        $await(moveAnimate());
+
+        textAnimate().start();
+        $await(jumpAnimate());
+      }));
+
+      runAsync().start();
+    })();
+  </script>
+
+  <!-- Phần chân trang: thông tin liên hệ -->
+  <div style="text-align:center; margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+    <p>Contact: <a href="https://www.facebook.com/dai.vudangdai" target="_blank">dangdaiptit</a></p>
+  </div>
+</body>
+</html>
